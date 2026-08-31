@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Carros</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -18,18 +17,26 @@
             </div>
         @endif
 
-        <!-- Cabeçalho da Página -->
+        <!-- Cabeçalho da Página com Navegação -->
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">Gestão de Carros</h1>
                 <p class="text-gray-600 text-sm">Gerencie o inventário de veículos e categorias</p>
             </div>
-            <button onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center space-x-2">
-                <span>+ Novo Carro</span>
-            </button>
+            
+            <!-- Botões de Ação -->
+            <div class="flex space-x-3">
+                <a href="{{ route('categories.create') }}" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
+                    <span>+ Nova Categoria</span>
+                </a>
+
+                <button onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
+                    <span>+ Novo Carro</span>
+                </button>
+            </div>
         </div>
 
-        <!-- Tabela de Listagem de Carros -->
+        <!-- Tabela de Carros -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -61,14 +68,12 @@
                             <td class="px-6 py-4 font-mono text-xs">{{ $car->placa }}</td>
                             <td class="px-6 py-4 font-semibold text-gray-800">{{ number_format($car->preco, 2, ',', '.') }} KZ</td>
                             <td class="px-6 py-4 text-right space-x-3">
-                                <!-- Botão Editar com todos os dados via JSON -->
                                 <button type="button" 
                                     onclick="openEditModal({{ json_encode($car) }})" 
                                     class="text-blue-600 hover:text-blue-900 font-medium">
                                     Editar
                                 </button>
 
-                                <!-- Botão Eliminar -->
                                 <form action="{{ route('cars.destroy', $car->id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja eliminar este carro?')">
                                     @csrf
                                     @method('DELETE')
@@ -88,41 +93,33 @@
         </div>
     </div>
 
-    <!-- Modal de Cadastro / Edição -->
+    <!-- Modal de Cadastro / Edição de Carro -->
     <div id="carModal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 {{ $errors->any() ? '' : 'hidden' }}">
         
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
             
-            <!-- Cabeçalho Fixo do Modal -->
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                 <h3 id="modalTitle" class="text-lg font-semibold text-gray-800">Cadastrar Novo Carro</h3>
                 <button onclick="closeModal()" type="button" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
             </div>
 
-            <!-- Formulário -->
             <form id="carForm" action="{{ route('cars.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
-                <div id="methodSpoofing"></div> <!-- Input oculto para PUT na edição -->
+                <div id="methodSpoofing"></div>
 
-                <!-- Corpo Scrollável com todos os campos -->
                 <div class="p-6 overflow-y-auto space-y-4 flex-1">
                     
                     @if ($errors->any())
                         <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
-                            <div class="flex">
-                                <div class="ml-1">
-                                    <h3 class="text-sm font-medium text-red-800">Por favor, corrija os erros abaixo:</h3>
-                                    <ul class="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
+                            <ul class="text-sm text-red-700 list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
                     @endif
 
-                    <!-- Campo: Categoria -->
+                    <!-- Categoria -->
                     <div>
                         <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
                         <select name="category_id" id="category_id" class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 text-sm" required>
@@ -135,19 +132,19 @@
                         </select>
                     </div>
 
-                    <!-- Campo: Marca -->
+                    <!-- Marca -->
                     <div>
                         <label for="marca" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
                         <input type="text" name="marca" id="marca" value="{{ old('marca') }}" placeholder="Ex: Toyota" class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 text-sm" required>
                     </div>
 
-                    <!-- Campo: Modelo -->
+                    <!-- Modelo -->
                     <div>
                         <label for="modelo" class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
                         <input type="text" name="modelo" id="modelo" value="{{ old('modelo') }}" placeholder="Ex: Land Cruiser" class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 text-sm" required>
                     </div>
 
-                    <!-- Campo: Cor -->
+                    <!-- Cor -->
                     <div>
                         <label for="cor" class="block text-sm font-medium text-gray-700 mb-1">Cor</label>
                         <select name="cor" id="cor" class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 text-sm" required>
@@ -158,19 +155,19 @@
                         </select>
                     </div>
 
-                    <!-- Campo: Ano -->
+                    <!-- Ano -->
                     <div>
                         <label for="ano" class="block text-sm font-medium text-gray-700 mb-1">Ano</label>
                         <input type="number" name="ano" id="ano" value="{{ old('ano') }}" placeholder="Ex: 2024" class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 text-sm" required>
                     </div>
 
-                    <!-- Campo: Placa -->
+                    <!-- Placa -->
                     <div>
                         <label for="placa" class="block text-sm font-medium text-gray-700 mb-1">Placa</label>
                         <input type="text" name="placa" id="placa" value="{{ old('placa') }}" placeholder="Ex: LDA-28-62-RP" class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 text-sm" required>
                     </div>
 
-                    <!-- Campo: Preço -->
+                    <!-- Preço -->
                     <div>
                         <label for="preco" class="block text-sm font-medium text-gray-700 mb-1">Preço (KZ)</label>
                         <input type="text" name="preco" id="preco" value="{{ old('preco') }}" placeholder="Ex: 25000000" class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 text-sm" required>
@@ -178,12 +175,11 @@
 
                 </div>
 
-                <!-- Rodapé Fixo com Botões sempre visíveis -->
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 focus:outline-none">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300">
                         Cancelar
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none shadow-sm">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm">
                         Salvar
                     </button>
                 </div>
@@ -192,7 +188,6 @@
         </div>
     </div>
 
-    <!-- Scripts de Controle do Modal (Novo vs Editar) -->
     <script>
         const carModal = document.getElementById('carModal');
         const carForm = document.getElementById('carForm');
@@ -202,7 +197,7 @@
         function openCreateModal() {
             modalTitle.innerText = "Cadastrar Novo Carro";
             carForm.action = "{{ route('cars.store') }}";
-            methodSpoofing.innerHTML = ""; // Limpa método PUT
+            methodSpoofing.innerHTML = "";
             carForm.reset();
             carModal.classList.remove('hidden');
         }
@@ -212,7 +207,6 @@
             carForm.action = `/cars/${car.id}`;
             methodSpoofing.innerHTML = `<input type="hidden" name="_method" value="PUT">`;
             
-            // Preenche todos os campos do formulário com os dados do registro
             document.getElementById('category_id').value = car.category_id;
             document.getElementById('marca').value = car.marca;
             document.getElementById('modelo').value = car.modelo;
