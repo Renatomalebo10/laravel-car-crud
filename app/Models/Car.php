@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Car extends Model
 {
     use HasFactory;
 
+    /**
+     * Atributos que podem ser preenchidos em massa (Mass Assignment).
+     */
     protected $fillable = [
         'category_id',
         'marca',
@@ -18,9 +20,13 @@ class Car extends Model
         'ano',
         'placa',
         'preco',
+        'imagem',
     ];
 
-    public function category(): BelongsTo
+    /**
+     * Relação N:1 (Muitos carros pertencem a uma Categoria).
+     */
+    public function category()
     {
         return $this->belongsTo(Category::class);
     }

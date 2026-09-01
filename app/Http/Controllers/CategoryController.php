@@ -4,19 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage; // No topo do ficheiro
+
+if ($request->hasFile('imagem')) {
+    $data['imagem'] = $request->file('imagem')->store('cars', 'public');
+}
 
 class CategoryController extends Controller
 {
     /**
-     * Exibe a página dedicada exclusivamente ao cadastro de categorias.
+     * Exibe a lista de categorias e o formulário de cadastro/edição.
      */
     public function create()
     {
-        return view('categories.create');
+        $categories = Category::orderBy('nome', 'asc')->get();
+        return view('categories.create', compact('categories'));
     }
 
     /**
-     * Grava a nova categoria na base de dados e redireciona de volta para a lista de carros.
+     * Grava uma nova categoria.
      */
     public function store(Request $request)
     {
@@ -31,6 +37,38 @@ class CategoryController extends Controller
             'nome' => $request->nome,
         ]);
 
-        return redirect()->route('cars.index')->with('success', 'Categoria cadastrada com sucesso!');
+        return redirect()->route('categories.create')->with('success', 'Categoria cadastrada com sucesso!');
+    }
+
+    /**
+     * Atualiza o nome de uma categoria existente.
+     */
+    public function update(Request $request, $id)
+    {
+        $category = Category::findOrFail($id);
+
+        $request->validate([
+            'nome' => 'required|string|max:255|unique:categories,nome,' . $id,
+        ], [
+            'nome.required' => 'O nome da categoria é obrigatório.',
+            'nome.unique' => 'Esta categoria já existe.',
+        ]);
+
+        $category->update([
+            'nome' => $request->nome,
+        ]);
+
+        return redirect()->route('categories.create')->with('success', 'Categoria atualizada com sucesso!');
+    }
+
+    /**
+     * Elimina uma categoria da base de dados.
+     */
+    public function destroy($id)
+    {
+        $category = Category::findOrFail($id);
+        $category->delete();
+
+        return redirect()->route('categories.create')->with('success', 'Categoria eliminada com sucesso!');
     }
 }
