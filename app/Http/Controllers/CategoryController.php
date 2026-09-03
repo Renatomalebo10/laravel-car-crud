@@ -3,21 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Car; // <--- ADICIONADO: Importação do Model Car
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // No topo do ficheiro
-
-if ($request->hasFile('imagem')) {
-    $data['imagem'] = $request->file('imagem')->store('cars', 'public');
-}
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
     /**
-     * Exibe a lista de categorias e o formulário de cadastro/edição.
+     * Exibe a lista com ordenação por ID decrescente.
      */
+    public function index()
+    {
+        $cars = Car::with('category')->orderBy('id', 'asc')->get();
+        $categories = Category::orderBy('id', 'asc')->get();
+
+        return view('cars.index', compact('cars', 'categories'));
+    }
+
     public function create()
     {
-        $categories = Category::orderBy('nome', 'asc')->get();
+        // Se quiseres ordenar as categorias por ID em vez de nome aqui também:
+        $categories = Category::orderBy('id', 'asc')->get();
+        
         return view('categories.create', compact('categories'));
     }
 

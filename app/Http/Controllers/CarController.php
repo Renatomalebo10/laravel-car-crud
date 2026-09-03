@@ -10,102 +10,162 @@ use Illuminate\Support\Facades\Storage;
 class CarController extends Controller
 {
     /**
-     * Exibe a lista de carros e categorias para os modais.
+     * Exibe a lista de carros e categorias ordenados por ID decrescente.
      */
-    public function index()
-    {
-        $cars = Car::with('category')->latest()->get();
-        $categories = Category::orderBy('nome', 'asc')->get();
+ public function index()
+{
+    $cars = Car::with('category')->orderBy('id', 'asc')->get();
+    $categories = Category::orderBy('id', 'asc')->get();
 
-        return view('cars.index', compact('cars', 'categories'));
+    return view('cars.index', compact('cars', 'categories'));
+}
+
+    /**
+     * Exibe o formulário de criação de um novo carro.
+     */
+    public function create()
+    {
+        $categories = Category::orderBy('id', 'asc')->get();
+        return view('cars.create', compact('categories'));
     }
 
     /**
-     * Regista um novo carro no banco de dados e faz o upload da imagem.
+     * Cadastra um novo carro na base de dados.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Sanitiza a placa para maiúsculas
+        if ($request->has('placa')) {
+            $request->merge([
+                'placa' => strtoupper(trim($request->placa))
+            ]);
+        }
+
+        // Converte vírgula para ponto no preço para evitar erro HY000 no MySQL
+        if ($request->has('preco')) {
+            $request->merge([
+                'preco' => str_replace(',', '.', $request->preco)
+            ]);
+        }
+
+        $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'marca'       => 'required|string|max:255',
             'modelo'      => 'required|string|max:255',
             'cor'         => 'required|string|max:255',
             'ano'         => 'required|integer|min:1900|max:' . (date('Y') + 1),
-            'placa'       => 'required|string|max:255|unique:cars,placa',
+            'placa'       => [
+                'required',
+                'string',
+                'max:20',
+                'unique:cars,placa',
+                'regex:/^[A-Z]{2,3}-\d{2}-\d{2}-[A-Z]{1,2}$/i',
+            ],
             'preco'       => 'required|numeric|min:0',
-            'imagem'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Máximo 2MB
+            'imagem'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'category_id.required' => 'A categoria é obrigatória.',
             'category_id.exists'   => 'A categoria selecionada é inválida.',
+            'placa.required'       => 'A placa do veículo é obrigatória.',
             'placa.unique'         => 'Esta placa já se encontra cadastrada.',
+            'placa.regex'          => 'Formato de placa inválido (Ex: LD-12-34-AB).',
             'imagem.image'         => 'O ficheiro enviado deve ser uma imagem.',
-            'imagem.mimes'         => 'Formatação inválida. Use apenas JPG, PNG ou WEBP.',
             'imagem.max'           => 'A imagem não pode exceder o tamanho de 2MB.',
         ]);
 
-        $data = $request->all();
-
-        // Processa e armazena a imagem na pasta storage/app/public/cars
+        // Processa o upload da imagem se enviada
         if ($request->hasFile('imagem')) {
             $data['imagem'] = $request->file('imagem')->store('cars', 'public');
         }
 
         Car::create($data);
 
-        return redirect()->route('cars.index')->with('success', 'Carro cadastrado com sucesso!');
+        return redirect()->route('cars.index')->with('success', 'Veículo cadastrado com sucesso!');
     }
 
     /**
-     * Atualiza os dados do carro e substitui a imagem se enviada uma nova.
+     * Exibe o formulário de edição de um carro existente.
+     */
+    public function edit($id)
+    {
+        $car = Car::findOrFail($id);
+        $categories = Category::orderBy('id', 'desc')->get();
+
+        return view('cars.edit', compact('car', 'categories'));
+    }
+
+    /**
+     * Atualiza os dados de um carro na base de dados.
      */
     public function update(Request $request, $id)
     {
         $car = Car::findOrFail($id);
 
-        $request->validate([
+        if ($request->has('placa')) {
+            $request->merge([
+                'placa' => strtoupper(trim($request->placa))
+            ]);
+        }
+
+        if ($request->has('preco')) {
+            $request->merge([
+                'preco' => str_replace(',', '.', $request->preco)
+            ]);
+        }
+
+        $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'marca'       => 'required|string|max:255',
             'modelo'      => 'required|string|max:255',
             'cor'         => 'required|string|max:255',
             'ano'         => 'required|integer|min:1900|max:' . (date('Y') + 1),
-            'placa'       => 'required|string|max:255|unique:cars,placa,' . $id,
+            'placa'       => [
+                'required',
+                'string',
+                'max:20',
+                'unique:cars,placa,' . $id, // Ignora o ID do próprio carro na verificação
+                'regex:/^[A-Z]{2,3}-\d{2}-\d{2}-[A-Z]{1,2}$/i',
+            ],
             'preco'       => 'required|numeric|min:0',
             'imagem'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'category_id.required' => 'A categoria é obrigatória.',
+            'placa.required'       => 'A placa do veículo é obrigatória.',
             'placa.unique'         => 'Esta placa já pertence a outro veículo.',
+            'placa.regex'          => 'Formato de placa inválido (Ex: LD-12-34-AB).',
             'imagem.max'           => 'A imagem não pode exceder 2MB.',
         ]);
 
-        $data = $request->all();
-
-        // Se uma nova imagem for enviada, remove a anterior e guarda a nova
+        // Substituição de imagem mantendo a limpeza no disco
         if ($request->hasFile('imagem')) {
             if ($car->imagem && Storage::disk('public')->exists($car->imagem)) {
                 Storage::disk('public')->delete($car->imagem);
             }
+
             $data['imagem'] = $request->file('imagem')->store('cars', 'public');
+        } else {
+            // Se NÃO enviou novo ficheiro, remove do array para preservar a foto atual no banco
+            unset($data['imagem']);
         }
 
         $car->update($data);
 
-        return redirect()->route('cars.index')->with('success', 'Carro atualizado com sucesso!');
+        return redirect()->back()->with('success', 'Veículo atualizado com sucesso!');
     }
 
     /**
-     * Elimina o carro da base de dados e o ficheiro de imagem associado.
+     * Elimina um carro e o seu ficheiro de imagem.
      */
     public function destroy($id)
     {
         $car = Car::findOrFail($id);
 
-        // Remove o ficheiro de imagem da pasta de armazenamento
         if ($car->imagem && Storage::disk('public')->exists($car->imagem)) {
             Storage::disk('public')->delete($car->imagem);
         }
 
         $car->delete();
 
-        return redirect()->route('cars.index')->with('success', 'Carro eliminado com sucesso!');
+        return redirect()->route('cars.index')->with('success', 'Veículo eliminado com sucesso!');
     }
 }

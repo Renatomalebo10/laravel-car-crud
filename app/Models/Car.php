@@ -9,9 +9,6 @@ class Car extends Model
 {
     use HasFactory;
 
-    /**
-     * Atributos que podem ser preenchidos em massa (Mass Assignment).
-     */
     protected $fillable = [
         'category_id',
         'marca',
@@ -23,9 +20,7 @@ class Car extends Model
         'imagem',
     ];
 
-    /**
-     * Relação N:1 (Muitos carros pertencem a uma Categoria).
-     */
+    // Relacionamento com Categoria
     public function category()
     {
         return $this->belongsTo(Category::class);
