@@ -25,7 +25,8 @@ class CarController extends Controller
                     ->orWhere('placa', 'like', "%{$search}%");
             })
             ->orderBy('id', 'asc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         $categories = Category::orderBy('id', 'asc')->get();
 
