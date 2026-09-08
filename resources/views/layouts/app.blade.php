@@ -18,7 +18,8 @@
                         <span class="text-xs bg-gray-100 text-gray-800 font-semibold px-2.5 py-1 rounded-full">Utilizador</span>
                     @endif
                 @endauth
-                <a href="{{ route('cars.index') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Painel de Veículos</a>
+                <a href="{{ route('dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Dashboard</a>
+                <a href="{{ route('cars.index') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Inventário</a>
             </div>
 
             <div class="flex items-center space-x-4">
