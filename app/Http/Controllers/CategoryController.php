@@ -31,9 +31,8 @@ class CategoryController extends Controller
     /**
      * Atualiza o nome de uma categoria existente.
      */
-    public function update(UpdateCategoryRequest $request, $id)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $category = Category::findOrFail($id);
         $category->update($request->validated());
 
         return redirect()->route('categories.create')->with('success', 'Categoria atualizada com sucesso!');
@@ -42,9 +41,8 @@ class CategoryController extends Controller
     /**
      * Elimina uma categoria da base de dados.
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        $category = Category::findOrFail($id);
         $category->delete();
 
         return redirect()->route('categories.create')->with('success', 'Categoria eliminada com sucesso!');

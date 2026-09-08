@@ -62,9 +62,8 @@ class CarController extends Controller
     /**
      * Atualiza os dados de um carro na base de dados.
      */
-    public function update(UpdateCarRequest $request, $id)
+    public function update(UpdateCarRequest $request, Car $car)
     {
-        $car = Car::findOrFail($id);
         $data = $request->validated();
 
         if ($request->has('placa')) {
@@ -93,10 +92,8 @@ class CarController extends Controller
     /**
      * Elimina um carro e o seu ficheiro de imagem.
      */
-    public function destroy($id)
+    public function destroy(Car $car)
     {
-        $car = Car::findOrFail($id);
-
         if ($car->imagem && Storage::disk('public')->exists($car->imagem)) {
             Storage::disk('public')->delete($car->imagem);
         }
