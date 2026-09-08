@@ -1,8 +1,4 @@
-@extends('layouts.guest')
-
-@section('title', 'Gestão de Carros')
-
-@section('content')
+<x-guest-layout>
     <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
         <div class="px-6 py-5 bg-gray-50 border-b border-gray-200 text-center">
             <h1 class="text-2xl font-bold text-gray-800">Gestão de Carros</h1>
@@ -44,4 +40,4 @@
             </div>
         </div>
     </div>
-@endsection
+</x-guest-layout>
