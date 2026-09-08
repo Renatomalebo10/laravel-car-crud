@@ -1,102 +1,106 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Gestão de Categorias') }}
+        </h2>
+    </x-slot>
 
-@section('title', 'Gestão de Categorias')
+    <div class="py-12">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-@section('content')
-    <div class="max-w-3xl mx-auto space-y-6">
-
-        <!-- Card de Cadastro -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-gray-800">Cadastrar Categoria</h1>
-                <a href="{{ route('cars.index') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
-                    ← Voltar aos Carros
-                </a>
-            </div>
-
-            <form action="{{ route('categories.store') }}" method="POST" class="p-6 space-y-4">
-                @csrf
-
-                <!-- Erros de Validação -->
-                @if ($errors->any())
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                        <ul class="text-sm text-red-700 list-disc list-inside space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <div>
-                    <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome da Categoria</label>
-                    <div class="flex space-x-3">
-                        <input type="text"
-                               name="nome"
-                               id="nome"
-                               value="{{ old('nome') }}"
-                               placeholder="Ex: SUV, Sedan, Camioneta"
-                               class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 p-2.5 text-sm"
-                               required
-                               autofocus>
-                        <button type="submit" class="px-5 py-2.5 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 shadow-sm transition whitespace-nowrap">
-                            Salvar Categoria
-                        </button>
-                    </div>
+            <!-- Card de Cadastro -->
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <h1 class="text-xl font-bold text-gray-800">Cadastrar Categoria</h1>
+                    <a href="{{ route('cars.index') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
+                        ← Voltar aos Carros
+                    </a>
                 </div>
-            </form>
-        </div>
 
-        <!-- Tabela de Categorias Existentes -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="text-lg font-semibold text-gray-800">Categorias Cadastradas</h2>
+                <form action="{{ route('categories.store') }}" method="POST" class="p-6 space-y-4">
+                    @csrf
+
+                    <!-- Erros de Validação -->
+                    @if ($errors->any())
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                            <ul class="text-sm text-red-700 list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div>
+                        <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome da Categoria</label>
+                        <div class="flex space-x-3">
+                            <input type="text"
+                                   name="nome"
+                                   id="nome"
+                                   value="{{ old('nome') }}"
+                                   placeholder="Ex: SUV, Sedan, Camioneta"
+                                   class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 p-2.5 text-sm"
+                                   required
+                                   autofocus>
+                            <button type="submit" class="px-5 py-2.5 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 shadow-sm transition whitespace-nowrap">
+                                Salvar Categoria
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
 
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        <th class="px-6 py-3">ID</th>
-                        <th class="px-6 py-3">Nome</th>
-                        <th class="px-6 py-3">Carros</th>
-                        <th class="px-6 py-3 text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
-                    @forelse ($categories as $category)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-6 py-4 font-medium text-gray-900">#{{ $category->id }}</td>
-                            <td class="px-6 py-4 font-medium">{{ $category->nome }}</td>
-                            <td class="px-6 py-4">
-                                <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                    {{ $category->cars_count ?? 0 }} veículo(s)
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-right space-x-3">
-                                <button type="button"
-                                        onclick="openEditCategoryModal({{ json_encode($category) }})"
-                                        class="text-blue-600 hover:text-blue-900 font-medium">
-                                    Editar
-                                </button>
+            <!-- Tabela de Categorias Existentes -->
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-lg font-semibold text-gray-800">Categorias Cadastradas</h2>
+                </div>
 
-                                <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja eliminar esta categoria?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Eliminar</button>
-                                </form>
-                            </td>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <th class="px-6 py-3">ID</th>
+                            <th class="px-6 py-3">Nome</th>
+                            <th class="px-6 py-3">Carros</th>
+                            <th class="px-6 py-3 text-right">Ações</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-6 text-center text-gray-500">
-                                Nenhuma categoria cadastrada.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
+                        @forelse ($categories as $category)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-900">#{{ $category->id }}</td>
+                                <td class="px-6 py-4 font-medium">{{ $category->nome }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                        {{ $category->cars_count ?? 0 }} veículo(s)
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right space-x-3">
+                                    <button type="button"
+                                            onclick="openEditCategoryModal({{ json_encode($category) }})"
+                                            class="text-blue-600 hover:text-blue-900 font-medium">
+                                        Editar
+                                    </button>
+
+                                    <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja eliminar esta categoria?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-6 text-center text-gray-500">
+                                    Nenhuma categoria cadastrada.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
         </div>
-
     </div>
 
     <!-- Modal de Edição de Categoria -->
@@ -127,22 +131,22 @@
             </form>
         </div>
     </div>
-@endsection
 
-@push('scripts')
-    <script>
-        function openEditCategoryModal(category) {
-            const form = document.getElementById('editCategoryForm');
-            const input = document.getElementById('edit_nome');
+    @push('modals')
+        <script>
+            function openEditCategoryModal(category) {
+                const form = document.getElementById('editCategoryForm');
+                const input = document.getElementById('edit_nome');
 
-            form.action = `/categories/${category.id}`;
-            input.value = category.nome;
+                form.action = `/categories/${category.id}`;
+                input.value = category.nome;
 
-            document.getElementById('editCategoryModal').classList.remove('hidden');
-        }
+                document.getElementById('editCategoryModal').classList.remove('hidden');
+            }
 
-        function closeEditModal() {
-            document.getElementById('editCategoryModal').classList.add('hidden');
-        }
-    </script>
-@endpush
+            function closeEditModal() {
+                document.getElementById('editCategoryModal').classList.add('hidden');
+            }
+        </script>
+    @endpush
+</x-app-layout>
