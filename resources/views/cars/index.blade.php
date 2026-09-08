@@ -10,17 +10,34 @@
             <p class="text-gray-600 text-sm">Visualização e gestão do inventário de veículos</p>
         </div>
 
-        <!-- Botões visíveis APENAS para Admin -->
-        @if(Auth::user()->isAdmin())
-            <div class="flex flex-wrap space-x-3">
-                <a href="{{ route('categories.create') }}" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
-                    <span>+ Gerir Categorias</span>
-                </a>
+        <!-- Busca -->
+        <form method="GET" action="{{ route('cars.index') }}" class="flex w-full md:w-auto">
+            <input type="text"
+                   name="q"
+                   value="{{ $search ?? '' }}"
+                   placeholder="Pesquisar veículo..."
+                   class="border border-gray-300 rounded-l-md shadow-sm p-2.5 text-sm w-full md:w-64 focus:ring-blue-500 focus:border-blue-500">
+            <button type="submit" class="px-4 py-2.5 bg-gray-800 text-white rounded-r-md text-sm font-medium hover:bg-gray-900 transition">
+                Buscar
+            </button>
+        </form>
+    </div>
 
-                <button onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
-                    <span>+ Novo Carro</span>
-                </button>
-            </div>
+    <div class="flex flex-wrap gap-3 mb-6 -mt-2">
+        @if(Auth::user()->isAdmin())
+            <a href="{{ route('categories.create') }}" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
+                <span>+ Gerir Categorias</span>
+            </a>
+
+            <button onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
+                <span>+ Novo Carro</span>
+            </button>
+        @endif
+
+        @if(!empty($search))
+            <a href="{{ route('cars.index') }}" class="text-sm text-gray-600 self-center">
+                Resultados para <strong>"{{ $search }}"</strong> — <span class="text-blue-600 hover:underline">limpar</span>
+            </a>
         @endif
     </div>
 
