@@ -12,12 +12,12 @@ class AuthTest extends TestCase
 
     public function test_guest_sees_login_page(): void
     {
-        $this->get(route('login'))->assertOk()->assertSee('Inicie sessão');
+        $this->get(route('login'))->assertOk()->assertSee('Entrar')->assertSee(config('app.name'));
     }
 
     public function test_guest_sees_register_page(): void
     {
-        $this->get(route('register'))->assertOk()->assertSee('Crie a sua conta');
+        $this->get(route('register'))->assertOk()->assertSee('Criar Conta');
     }
 
     public function test_new_user_can_register(): void
@@ -80,7 +80,7 @@ class AuthTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('logout'));
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect('/');
         $this->assertGuest();
     }
 
