@@ -42,14 +42,6 @@ class CarController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->has('placa')) {
-            $data['placa'] = strtoupper(trim($data['placa']));
-        }
-
-        if ($request->has('preco')) {
-            $data['preco'] = str_replace(',', '.', $data['preco']);
-        }
-
         if ($request->hasFile('imagem')) {
             $data['imagem'] = $request->file('imagem')->store('cars', 'public');
         }
@@ -65,14 +57,6 @@ class CarController extends Controller
     public function update(UpdateCarRequest $request, Car $car)
     {
         $data = $request->validated();
-
-        if ($request->has('placa')) {
-            $data['placa'] = strtoupper(trim($data['placa']));
-        }
-
-        if ($request->has('preco')) {
-            $data['preco'] = str_replace(',', '.', $data['preco']);
-        }
 
         if ($request->hasFile('imagem')) {
             if ($car->imagem && Storage::disk('public')->exists($car->imagem)) {

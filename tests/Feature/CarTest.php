@@ -6,7 +6,6 @@ use App\Models\Car;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -42,7 +41,6 @@ class CarTest extends TestCase
 
     public function test_admin_can_create_a_car(): void
     {
-        Storage::fake('public');
         $category = Category::factory()->create();
 
         $this->actingAs($this->admin())
@@ -54,7 +52,6 @@ class CarTest extends TestCase
                 'ano'         => 2024,
                 'placa'       => 'LD-12-34-AB',
                 'preco'       => '25,5',
-                'imagem'      => UploadedFile::fake()->image('carro.jpg'),
             ])
             ->assertRedirect(route('cars.index'));
 

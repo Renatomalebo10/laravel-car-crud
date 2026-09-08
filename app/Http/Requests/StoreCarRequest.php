@@ -11,6 +11,14 @@ class StoreCarRequest extends FormRequest
         return $this->user() && $this->user()->isAdmin();
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'placa' => strtoupper(trim($this->placa ?? '')),
+            'preco' => str_replace(',', '.', $this->preco ?? ''),
+        ]);
+    }
+
     public function rules(): array
     {
         return [
