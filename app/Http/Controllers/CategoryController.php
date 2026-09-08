@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
-use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -20,18 +21,9 @@ class CategoryController extends Controller
     /**
      * Grava uma nova categoria.
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate([
-            'nome' => 'required|string|max:255|unique:categories,nome',
-        ], [
-            'nome.required' => 'O nome da categoria é obrigatório.',
-            'nome.unique'   => 'Esta categoria já se encontra cadastrada.',
-        ]);
-
-        Category::create([
-            'nome' => $request->nome,
-        ]);
+        Category::create($request->validated());
 
         return redirect()->route('categories.create')->with('success', 'Categoria cadastrada com sucesso!');
     }
@@ -39,20 +31,10 @@ class CategoryController extends Controller
     /**
      * Atualiza o nome de uma categoria existente.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCategoryRequest $request, $id)
     {
         $category = Category::findOrFail($id);
-
-        $request->validate([
-            'nome' => 'required|string|max:255|unique:categories,nome,' . $id,
-        ], [
-            'nome.required' => 'O nome da categoria é obrigatório.',
-            'nome.unique'   => 'Esta categoria já existe.',
-        ]);
-
-        $category->update([
-            'nome' => $request->nome,
-        ]);
+        $category->update($request->validated());
 
         return redirect()->route('categories.create')->with('success', 'Categoria atualizada com sucesso!');
     }
