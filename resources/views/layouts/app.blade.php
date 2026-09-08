@@ -1,58 +1,61 @@
 <!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Gestão de Carros')</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <nav class="bg-white border-b border-gray-200 px-6 py-3 shadow-sm">
-        <div class="container mx-auto flex justify-between items-center max-w-7xl">
-            <div class="flex items-center space-x-2">
-                @auth
-                    @if(Auth::user()->isAdmin())
-                        <span class="text-xs bg-purple-100 text-purple-800 font-semibold px-2.5 py-1 rounded-full">Administrador</span>
-                    @else
-                        <span class="text-xs bg-gray-100 text-gray-800 font-semibold px-2.5 py-1 rounded-full">Utilizador</span>
-                    @endif
-                @endauth
-                <a href="{{ route('dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Dashboard</a>
-                <a href="{{ route('cars.index') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Inventário</a>
-            </div>
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
-            <div class="flex items-center space-x-4">
-                @auth
-                    <span class="text-sm text-gray-600">Olá, <strong>{{ Auth::user()->name }}</strong></span>
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded transition">
-                            Encerrar Sessão
-                        </button>
-                    </form>
-                @endauth
-            </div>
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Styles -->
+        @livewireStyles
+    </head>
+    <body class="font-sans antialiased">
+        <x-banner />
+
+        <div class="min-h-screen bg-gray-100">
+            @livewire('navigation-menu')
+
+            <!-- Page Heading -->
+            @if (isset($header))
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endif
+
+            <!-- Page Content -->
+            <main>
+                @if (session('success'))
+                    <div class="max-w-7xl mx-auto mt-4 px-4 sm:px-6 lg:px-8">
+                        <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-sm">
+                            {{ session('success') }}
+                        </div>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="max-w-7xl mx-auto mt-4 px-4 sm:px-6 lg:px-8">
+                        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm">
+                            {{ session('error') }}
+                        </div>
+                    </div>
+                @endif
+
+                {{ $slot }}
+            </main>
         </div>
-    </nav>
 
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-        @if (session('success'))
-            <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-sm">
-                {{ session('success') }}
-            </div>
-        @endif
+        @stack('modals')
 
-        @if (session('error'))
-            <div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded shadow-sm">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @yield('content')
-    </div>
-
-    @stack('scripts')
-</body>
+        @livewireScripts
+    </body>
 </html>
