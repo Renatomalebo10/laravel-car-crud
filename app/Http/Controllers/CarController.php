@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateCarRequest;
 use App\Models\Car;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class CarController extends Controller
@@ -32,7 +33,9 @@ class CarController extends Controller
 
         $categories = Category::orderBy('id', 'asc')->get();
 
-        return view('cars.index', compact('cars', 'categories', 'search'));
+        $purchasedCarIds = Auth::user()->purchases()->pluck('car_id')->all();
+
+        return view('cars.index', compact('cars', 'categories', 'search', 'purchasedCarIds'));
     }
 
     /**
