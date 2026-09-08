@@ -3,28 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Car; // <--- ADICIONADO: Importação do Model Car
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
     /**
-     * Exibe a lista com ordenação por ID decrescente.
+     * Formulário de criação de categorias com tabela de categorias existentes.
      */
-    public function index()
-    {
-        $cars = Car::with('category')->orderBy('id', 'asc')->get();
-        $categories = Category::orderBy('id', 'asc')->get();
-
-        return view('cars.index', compact('cars', 'categories'));
-    }
-
     public function create()
     {
-        // Se quiseres ordenar as categorias por ID em vez de nome aqui também:
-        $categories = Category::orderBy('id', 'asc')->get();
-        
+        $categories = Category::withCount('cars')->orderBy('id', 'asc')->get();
+
         return view('categories.create', compact('categories'));
     }
 
@@ -37,7 +26,7 @@ class CategoryController extends Controller
             'nome' => 'required|string|max:255|unique:categories,nome',
         ], [
             'nome.required' => 'O nome da categoria é obrigatório.',
-            'nome.unique' => 'Esta categoria já se encontra cadastrada.',
+            'nome.unique'   => 'Esta categoria já se encontra cadastrada.',
         ]);
 
         Category::create([
@@ -58,7 +47,7 @@ class CategoryController extends Controller
             'nome' => 'required|string|max:255|unique:categories,nome,' . $id,
         ], [
             'nome.required' => 'O nome da categoria é obrigatório.',
-            'nome.unique' => 'Esta categoria já existe.',
+            'nome.unique'   => 'Esta categoria já existe.',
         ]);
 
         $category->update([
