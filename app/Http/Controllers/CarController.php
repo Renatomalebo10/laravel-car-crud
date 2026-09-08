@@ -10,15 +10,27 @@ use Illuminate\Support\Facades\Storage;
 class CarController extends Controller
 {
     /**
-     * Exibe a lista de carros e categorias ordenados por ID decrescente.
+     * Exibe a lista de carros e categorias ordenados por ID crescente,
+     * com suporte a pesquisa por marca, modelo, cor ou placa.
      */
- public function index()
-{
-    $cars = Car::with('category')->orderBy('id', 'asc')->get();
-    $categories = Category::orderBy('id', 'asc')->get();
+    public function index(Request $request)
+    {
+        $search = trim($request->query('q', ''));
 
-    return view('cars.index', compact('cars', 'categories'));
-}
+        $cars = Car::with('category')
+            ->when($search, function ($query, $search) {
+                $query->where('marca', 'like', "%{$search}%")
+                    ->orWhere('modelo', 'like', "%{$search}%")
+                    ->orWhere('cor', 'like', "%{$search}%")
+                    ->orWhere('placa', 'like', "%{$search}%");
+            })
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $categories = Category::orderBy('id', 'asc')->get();
+
+        return view('cars.index', compact('cars', 'categories', 'search'));
+    }
 
     /**
      * Exibe o formulário de criação de um novo carro.
