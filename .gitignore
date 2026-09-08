@@ -14,7 +14,7 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# /public/build  — mantido versionado para Tailwind offline
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
