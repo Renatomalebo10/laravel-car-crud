@@ -109,6 +109,10 @@
         </table>
     </div>
 
+    <div class="mt-6">
+        {{ $cars->links() }}
+    </div>
+
     <!-- Modal de Cadastro / Edição (Carregado apenas se for Admin) -->
     @if(Auth::user()->isAdmin())
         <div id="carModal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 {{ $errors->any() ? '' : 'hidden' }}">
