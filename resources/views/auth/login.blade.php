@@ -1,70 +1,58 @@
-@extends('layouts.guest')
+<x-guest-layout>
+    <div class="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">{{ config('app.name', 'Gestão de Carros') }}</h1>
+                <p class="text-sm text-gray-500 mt-2">Aceda à sua conta para gerir o inventário</p>
+            </div>
 
-@section('title', 'Login - Gestão de Carros')
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                <x-validation-errors class="mb-4" />
 
-@section('content')
-    <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
-        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 text-center">
-            <h1 class="text-xl font-bold text-gray-800">Gestão de Carros</h1>
-            <p class="text-sm text-gray-600 mt-1">Inicie sessão para aceder ao painel</p>
+                @session('status')
+                    <div class="mb-4 font-medium text-sm text-green-600">
+                        {{ $value }}
+                    </div>
+                @endsession
+
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input id="password" type="password" name="password" required autocomplete="current-password"
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="flex items-center justify-between mt-4">
+                        <label for="remember_me" class="flex items-center text-sm text-gray-600">
+                            <input id="remember_me" type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                            <span class="ms-2">Lembrar-me</span>
+                        </label>
+
+                        @if (Route::has('password.request'))
+                            <a class="text-sm text-blue-600 hover:text-blue-800" href="{{ route('password.request') }}">
+                                Esqueceu a password?
+                            </a>
+                        @endif
+                    </div>
+
+                    <button type="submit" class="mt-6 w-full inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                        Entrar
+                    </button>
+                </form>
+
+                <p class="mt-6 text-center text-sm text-gray-600">
+                    Ainda não tem conta?
+                    <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-800">Criar conta</a>
+                </p>
+            </div>
         </div>
-
-        <form method="POST" action="{{ route('login') }}" class="p-6 space-y-4">
-            @csrf
-
-            @if ($errors->any())
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                    <ul class="text-sm text-red-700 list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email"
-                       name="email"
-                       id="email"
-                       value="{{ old('email') }}"
-                       required
-                       autofocus
-                       class="w-full border-gray-300 border rounded-md shadow-sm p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="seu@email.com">
-            </div>
-
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Palavra-passe</label>
-                <input type="password"
-                       name="password"
-                       id="password"
-                       required
-                       class="w-full border-gray-300 border rounded-md shadow-sm p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="••••••••">
-            </div>
-
-            <div class="flex items-center">
-                <input type="checkbox"
-                       name="remember"
-                       id="remember"
-                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                <label for="remember" class="ml-2 text-sm text-gray-600">
-                    Lembrar-me
-                </label>
-            </div>
-
-            <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-md shadow-sm transition">
-                Entrar
-            </button>
-
-            <p class="text-center text-sm text-gray-600">
-                Não tem uma conta?
-                <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-800 font-medium">
-                    Criar conta
-                </a>
-            </p>
-        </form>
     </div>
-@endsection
+</x-guest-layout>
