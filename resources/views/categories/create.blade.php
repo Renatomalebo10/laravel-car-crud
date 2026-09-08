@@ -1,21 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Categorias</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+@extends('layouts.app')
 
+@section('title', 'Gestão de Categorias')
+
+@section('content')
     <div class="max-w-3xl mx-auto space-y-6">
-        
-        <!-- Mensagem de Sucesso -->
-        @if (session('success'))
-            <div class="p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-sm">
-                {{ session('success') }}
-            </div>
-        @endif
 
         <!-- Card de Cadastro -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
@@ -43,13 +31,13 @@
                 <div>
                     <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome da Categoria</label>
                     <div class="flex space-x-3">
-                        <input type="text" 
-                               name="nome" 
-                               id="nome" 
-                               value="{{ old('nome') }}" 
-                               placeholder="Ex: SUV, Sedan, Camioneta" 
-                               class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 p-2.5 text-sm" 
-                               required 
+                        <input type="text"
+                               name="nome"
+                               id="nome"
+                               value="{{ old('nome') }}"
+                               placeholder="Ex: SUV, Sedan, Camioneta"
+                               class="w-full border-gray-300 border rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 p-2.5 text-sm"
+                               required
                                autofocus>
                         <button type="submit" class="px-5 py-2.5 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 shadow-sm transition whitespace-nowrap">
                             Salvar Categoria
@@ -70,6 +58,7 @@
                     <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         <th class="px-6 py-3">ID</th>
                         <th class="px-6 py-3">Nome</th>
+                        <th class="px-6 py-3">Carros</th>
                         <th class="px-6 py-3 text-right">Ações</th>
                     </tr>
                 </thead>
@@ -78,9 +67,14 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4 font-medium text-gray-900">#{{ $category->id }}</td>
                             <td class="px-6 py-4 font-medium">{{ $category->nome }}</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    {{ $category->cars_count ?? 0 }} veículo(s)
+                                </span>
+                            </td>
                             <td class="px-6 py-4 text-right space-x-3">
-                                <button type="button" 
-                                        onclick="openEditCategoryModal({{ json_encode($category) }})" 
+                                <button type="button"
+                                        onclick="openEditCategoryModal({{ json_encode($category) }})"
                                         class="text-blue-600 hover:text-blue-900 font-medium">
                                     Editar
                                 </button>
@@ -94,7 +88,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="px-6 py-6 text-center text-gray-500">
+                            <td colspan="4" class="px-6 py-6 text-center text-gray-500">
                                 Nenhuma categoria cadastrada.
                             </td>
                         </tr>
@@ -133,15 +127,17 @@
             </form>
         </div>
     </div>
+@endsection
 
+@push('scripts')
     <script>
         function openEditCategoryModal(category) {
             const form = document.getElementById('editCategoryForm');
             const input = document.getElementById('edit_nome');
-            
+
             form.action = `/categories/${category.id}`;
             input.value = category.nome;
-            
+
             document.getElementById('editCategoryModal').classList.remove('hidden');
         }
 
@@ -149,6 +145,4 @@
             document.getElementById('editCategoryModal').classList.add('hidden');
         }
     </script>
-
-</body>
-</html>
+@endpush
