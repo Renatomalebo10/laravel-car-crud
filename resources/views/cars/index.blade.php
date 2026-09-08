@@ -1,134 +1,95 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Carros</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
+@extends('layouts.app')
 
-    <!-- Barra Superior -->
-    <nav class="bg-white border-b border-gray-200 px-6 py-3 shadow-sm">
-        <div class="container mx-auto flex justify-between items-center max-w-7xl">
-            <div class="flex items-center space-x-2">
-                @if(Auth::user()->isAdmin())
-                    <span class="text-xs bg-purple-100 text-purple-800 font-semibold px-2.5 py-1 rounded-full">Administrador</span>
-                @else
-                    <span class="text-xs bg-gray-100 text-gray-800 font-semibold px-2.5 py-1 rounded-full">Utilizador</span>
-                @endif
-                <span class="text-sm font-medium text-gray-700">Painel de Veículos</span>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <span class="text-sm text-gray-600">Olá, <strong>{{ Auth::user()->name }}</strong></span>
-                
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded transition">
-                        Encerrar Sessão
-                    </button>
-                </form>
-            </div>
+@section('title', 'Inventário de Carros')
+
+@section('content')
+    <!-- Cabeçalho -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Inventário de Carros</h1>
+            <p class="text-gray-600 text-sm">Visualização e gestão do inventário de veículos</p>
         </div>
-    </nav>
 
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-        
-        @if (session('success'))
-            <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-sm">
-                {{ session('success') }}
+        <!-- Botões visíveis APENAS para Admin -->
+        @if(Auth::user()->isAdmin())
+            <div class="flex flex-wrap space-x-3">
+                <a href="{{ route('categories.create') }}" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
+                    <span>+ Gerir Categorias</span>
+                </a>
+
+                <button onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
+                    <span>+ Novo Carro</span>
+                </button>
             </div>
         @endif
+    </div>
 
-        <!-- Cabeçalho -->
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Inventário de Carros</h1>
-                <p class="text-gray-600 text-sm">Visualização e gestão do inventário de veículos</p>
-            </div>
-            
-            <!-- Botões visíveis APENAS para Admin -->
-            @if(Auth::user()->isAdmin())
-                <div class="flex space-x-3">
-                    <a href="{{ route('categories.create') }}" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
-                        <span>+ Gerir Categorias</span>
-                    </a>
+    <!-- Tabela de Carros -->
+    <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th class="px-6 py-3">Foto</th>
+                    <th class="px-6 py-3">ID</th>
+                    <th class="px-6 py-3">Categoria</th>
+                    <th class="px-6 py-3">Marca/Modelo</th>
+                    <th class="px-6 py-3">Cor</th>
+                    <th class="px-6 py-3">Ano</th>
+                    <th class="px-6 py-3">Placa</th>
+                    <th class="px-6 py-3">Preço</th>
+                    @if(Auth::user()->isAdmin())
+                        <th class="px-6 py-3 text-right">Ações</th>
+                    @endif
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
+                @forelse ($cars as $car)
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-3">
+                            @if ($car->imagem)
+                                <img src="{{ asset('storage/' . $car->imagem) }}" alt="{{ $car->modelo }}" class="w-14 h-10 object-cover rounded shadow-sm border">
+                            @else
+                                <div class="w-14 h-10 bg-gray-100 border text-gray-400 flex items-center justify-center text-xs rounded font-medium">Sem foto</div>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900">#{{ $car->id }}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {{ $car->category->nome ?? 'Sem Categoria' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 font-semibold text-gray-900">{{ $car->marca }} {{ $car->modelo }}</td>
+                        <td class="px-6 py-4">{{ $car->cor }}</td>
+                        <td class="px-6 py-4">{{ $car->ano }}</td>
+                        <td class="px-6 py-4 font-mono text-xs uppercase">{{ $car->placa }}</td>
+                        <td class="px-6 py-4 font-semibold text-gray-800">{{ number_format($car->preco, 2, ',', '.') }} KZ</td>
 
-                    <button onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow transition flex items-center">
-                        <span>+ Novo Carro</span>
-                    </button>
-                </div>
-            @endif
-        </div>
-
-        <!-- Tabela de Carros -->
-        <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        <th class="px-6 py-3">Foto</th>
-                        <th class="px-6 py-3">ID</th>
-                        <th class="px-6 py-3">Categoria</th>
-                        <th class="px-6 py-3">Marca/Modelo</th>
-                        <th class="px-6 py-3">Cor</th>
-                        <th class="px-6 py-3">Ano</th>
-                        <th class="px-6 py-3">Placa</th>
-                        <th class="px-6 py-3">Preço</th>
+                        <!-- Coluna de Ações visível APENAS para Admin -->
                         @if(Auth::user()->isAdmin())
-                            <th class="px-6 py-3 text-right">Ações</th>
+                            <td class="px-6 py-4 text-right space-x-3">
+                                <button type="button"
+                                        onclick="openEditModal({{ json_encode($car) }})"
+                                        class="text-blue-600 hover:text-blue-900 font-medium">
+                                    Editar
+                                </button>
+
+                                <form action="{{ route('cars.destroy', $car->id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja eliminar este veículo?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Eliminar</button>
+                                </form>
+                            </td>
                         @endif
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
-                    @forelse ($cars as $car)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-6 py-3">
-                                @if ($car->imagem)
-                                    <img src="{{ asset('storage/' . $car->imagem) }}" alt="{{ $car->modelo }}" class="w-14 h-10 object-cover rounded shadow-sm border">
-                                @else
-                                    <div class="w-14 h-10 bg-gray-100 border text-gray-400 flex items-center justify-center text-xs rounded font-medium">Sem foto</div>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 font-medium text-gray-900">#{{ $car->id }}</td>
-                            <td class="px-6 py-4">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                    {{ $car->category->nome ?? 'Sem Categoria' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 font-semibold text-gray-900">{{ $car->marca }} {{ $car->modelo }}</td>
-                            <td class="px-6 py-4">{{ $car->cor }}</td>
-                            <td class="px-6 py-4">{{ $car->ano }}</td>
-                            <td class="px-6 py-4 font-mono text-xs uppercase">{{ $car->placa }}</td>
-                            <td class="px-6 py-4 font-semibold text-gray-800">{{ number_format($car->preco, 2, ',', '.') }} KZ</td>
-                            
-                            <!-- Coluna de Ações visível APENAS para Admin -->
-                            @if(Auth::user()->isAdmin())
-                                <td class="px-6 py-4 text-right space-x-3">
-                                    <button type="button" 
-                                            onclick="openEditModal({{ json_encode($car) }})" 
-                                            class="text-blue-600 hover:text-blue-900 font-medium">
-                                        Editar
-                                    </button>
-
-                                    <form action="{{ route('cars.destroy', $car->id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja eliminar este veículo?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Eliminar</button>
-                                    </form>
-                                </td>
-                            @endif
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ Auth::user()->isAdmin() ? '9' : '8' }}" class="px-6 py-8 text-center text-gray-500">
-                                Nenhum veículo cadastrado na base de dados.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="{{ Auth::user()->isAdmin() ? '9' : '8' }}" class="px-6 py-8 text-center text-gray-500">
+                            Nenhum veículo cadastrado na base de dados.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     <!-- Modal de Cadastro / Edição (Carregado apenas se for Admin) -->
@@ -237,7 +198,11 @@
                 </form>
             </div>
         </div>
+    @endif
+@endsection
 
+@if(Auth::user()->isAdmin())
+    @push('scripts')
         <script>
             const carModal = document.getElementById('carModal');
             const carForm = document.getElementById('carForm');
@@ -264,7 +229,7 @@
                 carForm.action = `/cars/${car.id}`;
                 methodSpoofing.innerHTML = `<input type="hidden" name="_method" value="PUT">`;
                 editingIdInput.value = car.id;
-                
+
                 document.getElementById('category_id').value = car.category_id || '';
                 document.getElementById('marca').value = car.marca || '';
                 document.getElementById('modelo').value = car.modelo || '';
@@ -289,7 +254,5 @@
                 carModal.classList.add('hidden');
             }
         </script>
-    @endif
-
-</body>
-</html>
+    @endpush
+@endif
